@@ -9,6 +9,9 @@ import java.util.regex.*;
  */
 class MyDecafLexer extends DecafLexer
 {
+	
+	String[] keyWordArray = {"def","if", "else", 
+		"while", "return", "break", "continue", "int", "bool", "void", "true", "false"};
 
     /**
      * Perform lexical analysis, converting Decaf source code into a stream of
@@ -24,41 +27,72 @@ class MyDecafLexer extends DecafLexer
     public Queue<Token> lex(BufferedReader input, String filename)
             throws IOException, InvalidTokenException
     {
-        Queue<Token> tokens = new ArrayDeque<Token>();
-        System.out.println("Were in MyDecafLexer");
-        
-        System.out.println(tokens.size());
-        
-       String str = input.readLine();
-       System.out.println(str);
-        
-        while(str != null)
-        {
-        	//Do stuff
-        	
-        	str = input.readLine();
-        	System.out.println(str);
-        }
-       
-       
-        
-        
-      
-        
-        //Regex's --> 
-        Pattern identifier = Pattern.compile("[a-zA-z][a-zA-Z_0-9]*");
-        Pattern keyword = Pattern.compile("[a-z][a-z0-9]*"); // keywords don't have _ or numbers but it says they can?
+    	
+    	String str;
+    	String[] myTokens;
+    	String[] IdentifiersFound;
+        boolean isIdentifier = false;
+    	
+    	  //Regex's --> 
+        Pattern identifier = Pattern.compile("[a-zA-z][a-zA-Z_0-9]*"); //Cant start with an _ --> Correct???
+        Pattern keyword = Pattern.compile("[a-z][a-z0-9]*"); // Can keywords have _ --> ????
         Pattern decimalLiteral = Pattern.compile("[0-9][1-9]");
         Pattern hexLiteral = Pattern.compile("0x([a-zA-z]*)|([0-9]*)");
         Pattern stringLiteral = Pattern.compile("");
         Pattern symbol = Pattern.compile("[-\\[\\]\\(\\{\\}\\)\\,\\;\\=\\+\\-\\*\\/\\%\\<\\>\\<=\\>=\\==\\!=\\&&\\||\\!]"); // will this allow  <, <=, and = in the same regex without confusion(prob not)
         
-        Matcher m1 = identifier.matcher("");
-        Matcher m2 = keyword.matcher("");
-        Matcher m3 = decimalLiteral.matcher("");
-        Matcher m4 = hexLiteral.matcher("");
-        Matcher m5 = stringLiteral.matcher("");
-        Matcher m6 = symbol.matcher("");
+        
+//        Matcher m1 = identifier.matcher("");
+//        Matcher m2 = keyword.matcher("");
+//        Matcher m3 = decimalLiteral.matcher("");
+//        Matcher m4 = hexLiteral.matcher("");
+//        Matcher m5 = stringLiteral.matcher("");
+//        Matcher m6 = symbol.matcher("");
+        
+      
+    	
+    	
+    	
+    	
+    	
+        Queue<Token> tokens = new ArrayDeque<Token>();
+        System.out.println("Were in MyDecafLexer");
+        
+        System.out.println(tokens.size());
+        
+        while((str = input.readLine()) != null)
+        {
+        	myTokens = str.split(symbol.toString());
+ 
+        	for(int i = 0; i < myTokens.length; i ++)
+        	{     		
+        		IdentifiersFound = myTokens[i].split(" ");
+        		
+        		for(int j = 0; j < IdentifiersFound.length; j ++)
+        		{
+        			isIdentifier = Pattern.matches(identifier.pattern().toString(), IdentifiersFound[j]);
+            		
+            		if(isIdentifier == true)
+            		{
+            			//System.out.println(IdentifiersFound[j] + "\t" + "Something");
+            			for(int k = 0; k < keyWordArray.length; k ++)
+            			{
+            				if(keyWordArray[k].equals(IdentifiersFound[j]))
+            				{
+            					System.out.println("KEY: " + IdentifiersFound[j]);
+            				}
+            			}
+            		}
+            		else
+            		{
+            			System.out.println("ID: " + IdentifiersFound[j]);
+            		}
+        		}
+        		
+        	}
+        }
+        
+
         
         this.addTokenPattern(Token.Type.ID, identifier.toString());
         this.addTokenPattern(Token.Type.KEY, keyword.toString());
