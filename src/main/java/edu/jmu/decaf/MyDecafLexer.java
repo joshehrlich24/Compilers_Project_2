@@ -30,14 +30,16 @@ class MyDecafLexer extends DecafLexer
     	
     	String str;
     	String[] myTokens;
-    	String[] IdentifiersFound;
+    	boolean isKeyword = false;
+    	String[] identifiersFound;
         boolean isIdentifier = false;
+        boolean isDecimalLit = false;
     	
     	  //Regex's --> 
         Pattern identifier = Pattern.compile("[a-zA-z][a-zA-Z_0-9]*"); //Cant start with an _ --> Correct???
         Pattern keyword = Pattern.compile("[a-z][a-z0-9]*"); // Can keywords have _ --> ????
-        Pattern decimalLiteral = Pattern.compile("[0-9][1-9]");
-        Pattern hexLiteral = Pattern.compile("0x([a-zA-z]*)|([0-9]*)");
+        Pattern decimalLiteral = Pattern.compile("[0-9][1-9]*");
+        Pattern hexLiteral = Pattern.compile("0x([a-fA-F]*)|([0-9]*)");
         Pattern stringLiteral = Pattern.compile("");
         Pattern symbol = Pattern.compile("[-\\[\\]\\(\\{\\}\\)\\,\\;\\=\\+\\-\\*\\/\\%\\<\\>\\<=\\>=\\==\\!=\\&&\\||\\!]"); // will this allow  <, <=, and = in the same regex without confusion(prob not)
         
@@ -60,39 +62,57 @@ class MyDecafLexer extends DecafLexer
         
         System.out.println(tokens.size());
         
-        while((str = input.readLine()) != null)
+        while((str = input.readLine()) != null) // Read a line of input from the input file
         {
-        	myTokens = str.split(symbol.toString());
+        	myTokens = str.split(" "); // Split the line on symbols
  
-        	for(int i = 0; i < myTokens.length; i ++)
+        	for(int i = 0; i < myTokens.length; i ++) // loop through each line of tokens
         	{     		
-        		IdentifiersFound = myTokens[i].split(" ");
+        		identifiersFound = myTokens[i].split(" "); //split the line into individual tokens 
         		
-        		for(int j = 0; j < IdentifiersFound.length; j ++)
+        		for(int j = 0; j < identifiersFound.length; j ++) // loop through those individual tokens
         		{
-        			isIdentifier = Pattern.matches(identifier.pattern().toString(), IdentifiersFound[j]);
+        			identifiersFound[j] = identifiersFound[j].replaceAll("\\s+" , ""); // remove spaces
+        			
+        			isIdentifier = Pattern.matches(identifier.pattern().toString(), identifiersFound[j]); 
             		
             		if(isIdentifier == true)
             		{
-            			//System.out.println(IdentifiersFound[j] + "\t" + "Something");
             			for(int k = 0; k < keyWordArray.length; k ++)
             			{
-            				if(keyWordArray[k].equals(IdentifiersFound[j]))
+            				if(keyWordArray[k].equals(identifiersFound[j]))
             				{
-            					System.out.println("KEY: " + IdentifiersFound[j]);
+            					isKeyword = true;
             				}
+            				
             			}
             		}
-            		else
+            		if(isKeyword)
             		{
-            			System.out.println("ID: " + IdentifiersFound[j]);
-            		}
+            			System.out.println(Token.Type.KEY + "\t" + identifiersFound[j]);	
+    				}
+            		else
+    				{
+            			isDecimalLit = Pattern.matches(decimalLiteral.pattern().toString(), identifiersFound[j]); 
+            			if(isDecimalLit)
+            			{
+            				System.out.println(Token.Type.DEC + "\t" + identifiersFound[j]);
+            			}
+            			else
+            			{
+            				System.out.println(Token.Type.ID + "\t" + identifiersFound[j]);	
+            			}
+            				
+    				}
+            		isKeyword = false;
+            	
         		}
         		
         	}
         }
         
-
+  
+        
         
         this.addTokenPattern(Token.Type.ID, identifier.toString());
         this.addTokenPattern(Token.Type.KEY, keyword.toString());
