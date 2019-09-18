@@ -69,6 +69,7 @@ class DecafCompiler
         }
         
         mainFile = new File(args[0]);
+        System.out.println(mainFile.getName());
     }
 }
 

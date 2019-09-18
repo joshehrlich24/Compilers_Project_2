@@ -4,5 +4,6 @@ def int main()
 	int b;
 	a = 4 + 5;
 	b = 0x5F;
+	"Banana";
 	return a;
 }

@@ -35,9 +35,11 @@ class MyDecafLexer extends DecafLexer
     	Queue<Token> tokens = new ArrayDeque<Token>();
     	
     	String str = "";
+    	int lineNumber = 0;
     	StringBuffer sb = new StringBuffer();
-    	StringBuffer temp = new StringBuffer();
-    	Token token = new Token(Token.Type.KEY);
+    	//StringBuffer temp = new StringBuffer();
+    	SourceInfo si = new SourceInfo(filename, lineNumber);
+    	
     	
     	
     	
@@ -47,7 +49,7 @@ class MyDecafLexer extends DecafLexer
         Pattern keyword = Pattern.compile("def|if|else|while|return|break|continue|int|bool|void|true|false"); // Can keywords have _ --> ????
         Pattern decimalLiteral = Pattern.compile("[0-9][1-9]*");
         Pattern hexLiteral = Pattern.compile("0x[A-F0-9]*");
-        Pattern stringLiteral = Pattern.compile("");
+        Pattern stringLiteral = Pattern.compile("\"[a-zA-Z0-9]*\"");
         Pattern symbol = Pattern.compile("[-\\[\\]\\(\\{\\}\\)\\,\\;\\=\\+\\-\\*\\/\\%\\<\\>\\<=\\>=\\==\\!=\\&&\\||\\!]"); // will this allow  <, <=, and = in the same regex without confusion(prob not)
        
         //Token Patterns --> ORDER MATTERS
@@ -56,8 +58,10 @@ class MyDecafLexer extends DecafLexer
         this.addTokenPattern(Token.Type.HEX, hexLiteral.toString());
         this.addTokenPattern(Token.Type.DEC, decimalLiteral.toString());
         this.addTokenPattern(Token.Type.SYM, symbol.toString());
+        this.addTokenPattern(Token.Type.STR, stringLiteral.toString());
         
-        //this.addTokenPattern(Token.Type.STR, stringLiteral.toString());
+        System.out.println(si);
+        //Token token = new Token(this.nextToken(sb).type, sb.toString(), si);
        
         //Ignored Patterns
        
@@ -66,15 +70,18 @@ class MyDecafLexer extends DecafLexer
         {
         	 extract(whitespace, sb);
         	 sb.append(str); // Do we want to add all lines to string buffer than do work or do work line by line as we read?
-        	 while((token = this.nextToken(sb)) != null)
+        	 Token token = new Token(this.nextToken(sb).type, sb.toString(), si);
+        	 while(token != null)
         	 {
-        		 System.out.println("Token: " + token);
+        		 //System.out.println("Token: " + token);
+        		 tokens.add(token);
         		 extract(whitespace, sb);
+        		 token = this.nextToken(sb);
         	 }
         	 //System.out.println("-->" + str);
         }
         //System.out.println("End Loop");
-       
+       System.out.println("Tokens -->" + tokens.size());
         return tokens;
     }
     
