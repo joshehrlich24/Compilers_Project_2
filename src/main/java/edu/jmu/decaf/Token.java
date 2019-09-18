@@ -76,7 +76,6 @@ public class Token
     @Override
     public String toString()
     {
-    	System.out.println("In the DecafCompiler.Java class --> toString() method");
         return typeToString(type) + "\t\"" + text +
             "\"\t[" + source.toString() + "]";
     }

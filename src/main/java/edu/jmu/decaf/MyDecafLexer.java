@@ -4,6 +4,10 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
+import org.omg.CORBA.PRIVATE_MEMBER;
+
+import edu.jmu.decaf.Token.Type;
+
 /**
  * Concrete Decaf lexer class.
  */
@@ -28,101 +32,49 @@ class MyDecafLexer extends DecafLexer
             throws IOException, InvalidTokenException
     {
     	
-    	String str;
-    	String[] myTokens;
-    	boolean isKeyword = false;
-    	String[] identifiersFound;
-        boolean isIdentifier = false;
-        boolean isDecimalLit = false;
+    	Queue<Token> tokens = new ArrayDeque<Token>();
+    	
+    	String str = "";
+    	StringBuffer sb = new StringBuffer();
+    	StringBuffer temp = new StringBuffer();
+    	Token token = new Token(Token.Type.KEY);
+    	
+    	
     	
     	  //Regex's --> 
         Pattern identifier = Pattern.compile("[a-zA-z][a-zA-Z_0-9]*"); //Cant start with an _ --> Correct???
-        Pattern keyword = Pattern.compile("[a-z][a-z0-9]*"); // Can keywords have _ --> ????
+        Pattern whitespace = Pattern.compile("([\\s+])|(\\t)");
+        Pattern keyword = Pattern.compile("def|if|else|while|return|break|continue|int|bool|void|true|false"); // Can keywords have _ --> ????
         Pattern decimalLiteral = Pattern.compile("[0-9][1-9]*");
-        Pattern hexLiteral = Pattern.compile("0x([a-fA-F]*)|([0-9]*)");
+        Pattern hexLiteral = Pattern.compile("0x[A-F0-9]*");
         Pattern stringLiteral = Pattern.compile("");
         Pattern symbol = Pattern.compile("[-\\[\\]\\(\\{\\}\\)\\,\\;\\=\\+\\-\\*\\/\\%\\<\\>\\<=\\>=\\==\\!=\\&&\\||\\!]"); // will this allow  <, <=, and = in the same regex without confusion(prob not)
-        
-        
-//        Matcher m1 = identifier.matcher("");
-//        Matcher m2 = keyword.matcher("");
-//        Matcher m3 = decimalLiteral.matcher("");
-//        Matcher m4 = hexLiteral.matcher("");
-//        Matcher m5 = stringLiteral.matcher("");
-//        Matcher m6 = symbol.matcher("");
-        
-      
-    	
-    	
-    	
-    	
-    	
-        Queue<Token> tokens = new ArrayDeque<Token>();
-        System.out.println("Were in MyDecafLexer");
-        
-        System.out.println(tokens.size());
-        
-        while((str = input.readLine()) != null) // Read a line of input from the input file
-        {
-        	myTokens = str.split(" "); // Split the line on symbols
- 
-        	for(int i = 0; i < myTokens.length; i ++) // loop through each line of tokens
-        	{     		
-        		identifiersFound = myTokens[i].split(" "); //split the line into individual tokens 
-        		
-        		for(int j = 0; j < identifiersFound.length; j ++) // loop through those individual tokens
-        		{
-        			identifiersFound[j] = identifiersFound[j].replaceAll("\\s+" , ""); // remove spaces
-        			
-        			isIdentifier = Pattern.matches(identifier.pattern().toString(), identifiersFound[j]); 
-            		
-            		if(isIdentifier == true)
-            		{
-            			for(int k = 0; k < keyWordArray.length; k ++)
-            			{
-            				if(keyWordArray[k].equals(identifiersFound[j]))
-            				{
-            					isKeyword = true;
-            				}
-            				
-            			}
-            		}
-            		if(isKeyword)
-            		{
-            			System.out.println(Token.Type.KEY + "\t" + identifiersFound[j]);	
-    				}
-            		else
-    				{
-            			isDecimalLit = Pattern.matches(decimalLiteral.pattern().toString(), identifiersFound[j]); 
-            			if(isDecimalLit)
-            			{
-            				System.out.println(Token.Type.DEC + "\t" + identifiersFound[j]);
-            			}
-            			else
-            			{
-            				System.out.println(Token.Type.ID + "\t" + identifiersFound[j]);	
-            			}
-            				
-    				}
-            		isKeyword = false;
-            	
-        		}
-        		
-        	}
-        }
-        
-  
-        
-        
-        this.addTokenPattern(Token.Type.ID, identifier.toString());
+       
+        //Token Patterns --> ORDER MATTERS
         this.addTokenPattern(Token.Type.KEY, keyword.toString());
-        this.addTokenPattern(Token.Type.DEC, decimalLiteral.toString());
+        this.addTokenPattern(Token.Type.ID, identifier.toString());
         this.addTokenPattern(Token.Type.HEX, hexLiteral.toString());
-        this.addTokenPattern(Token.Type.STR, stringLiteral.toString());
+        this.addTokenPattern(Token.Type.DEC, decimalLiteral.toString());
         this.addTokenPattern(Token.Type.SYM, symbol.toString());
-  
-        // TODO: implement this!
-
+        
+        //this.addTokenPattern(Token.Type.STR, stringLiteral.toString());
+       
+        //Ignored Patterns
+       
+        
+        while((str = input.readLine()) != null)
+        {
+        	 extract(whitespace, sb);
+        	 sb.append(str); // Do we want to add all lines to string buffer than do work or do work line by line as we read?
+        	 while((token = this.nextToken(sb)) != null)
+        	 {
+        		 System.out.println("Token: " + token);
+        		 extract(whitespace, sb);
+        	 }
+        	 //System.out.println("-->" + str);
+        }
+        //System.out.println("End Loop");
+       
         return tokens;
     }
     

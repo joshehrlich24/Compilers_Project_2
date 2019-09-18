@@ -33,7 +33,7 @@ class DecafCompiler
      */
     public DecafCompiler(String[] args)
     {
-    	mainFile = null;
+    	mainFile = null; // mainFile was null?
         parseCompilerArguments(args);
     }
 
@@ -43,7 +43,7 @@ class DecafCompiler
      * @throws IOException Thrown if there is an I/O problem
      * @throws InvalidTokenException Thrown if there is a lexing problem
      */
-    public void run() throws IOException, InvalidTokenException
+	public void run() throws IOException, InvalidTokenException
     {
         // PHASE 1 - LEXER
 
@@ -67,7 +67,7 @@ class DecafCompiler
             System.out.println("Usage: ./decaf.sh <file>");
             System.exit(-1);
         }
-
+        
         mainFile = new File(args[0]);
     }
 }
