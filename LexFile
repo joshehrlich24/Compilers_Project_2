@@ -3,7 +3,6 @@ def int main()
 	int a;
 	int b;
 	a = 4 + 5;
-	b = 0x5F;
-	"Banana";
+	b = 7 - 2
 	return a;
 }
