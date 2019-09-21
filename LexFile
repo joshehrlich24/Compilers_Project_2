@@ -1,7 +1,10 @@
 def int main()
 {
-	// Ignore me
-	int a;
-	a = 4 + 5;
-	return a;
+	int5 int myReturn;
+	(interesting i = 0; i < myReturn; //i ++)
+	{
+		bool yourBool = 0x2FF;
+
+	}
+		  		
 }

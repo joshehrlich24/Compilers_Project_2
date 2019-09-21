@@ -37,16 +37,12 @@ class MyDecafLexer extends DecafLexer
     	
     	String []keywords = {"def", "if", "else", "while", "return", "break", "continue", "int", "bool", "void", "true", "false"};
     	String []reserved = {"for", "callout", "class", "interface", "extends", "implements", "new", "this", "string", "float", "double", "null"};
-    	HashSet<String> keysHash = new HashSet<>();
     	Queue<Token> tokens = new ArrayDeque<Token>();
     	
     	String str = "";
     	int lineNumber = 1;
     	StringBuffer sb = new StringBuffer();
     	Token token;
-    	//StringBuffer temp = new StringBuffer();
-    	
-    	
     	/*
     	 * 
     	 * \d	A digit: [0-9]
@@ -59,36 +55,25 @@ class MyDecafLexer extends DecafLexer
     	
     	  //Regex's --> 
     	Pattern whitespace = Pattern.compile("[\\s\\t\\n]+");
-    	Pattern keyword = Pattern.compile("(def|if|else|while|return|break|continue|int|bool|void|true|false)"); // Can keywords have _ --> ???? This may violate the rules for keywords
-        Pattern identifier = Pattern.compile("[a-zA-z][a-zA-Z0-9_]*"); //Cant start with an _ --> Correct???
+    	Pattern keyword = Pattern.compile("(def|if|else|while|return|break|continue|int|bool|void|true|false)"); 
+        Pattern identifier = Pattern.compile("[a-zA-z][a-zA-Z0-9_]*"); 
         Pattern decimalLiteral = Pattern.compile("[0-9][1-9]*");
         Pattern hexLiteral = Pattern.compile("0x[A-F0-9]*");
         Pattern stringLiteral = Pattern.compile("\"[a-zA-Z0-9]+\"");
-        Pattern symbol = Pattern.compile("\\/\\/|[(){}//[//]]|[=|<|>|!]?=|[+8\\/\\-<>!,\\;]|\\|\\||%|\\&\\&"); // will this allow  <, <=, and = in the same regex without confusion(prob not)
-        //Pattern comments = Pattern.compile("(/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+/)|(//.*)");
-        //Token Patterns --> ORDER MATTERS --> This order will probably need to be rearranged once tested
+        Pattern symbol = Pattern.compile("\\/\\/|[(){}//[//]]|[=|<|>|!]?=|[+8\\/\\-<>!,\\;]|\\|\\||%|\\&\\&"); 
+        
+        //Token Patterns --> ORDER MATTERS 
         
         addTokenPattern(Token.Type.ID, identifier.toString());
         addTokenPattern(Token.Type.KEY, keyword.toString());
         addTokenPattern(Token.Type.HEX, hexLiteral.toString());
         addTokenPattern(Token.Type.DEC, decimalLiteral.toString());
-       // addTokenPattern(null, comments.toString());
         addTokenPattern(Token.Type.SYM, symbol.toString());
         addTokenPattern(Token.Type.STR, stringLiteral.toString());
         
-       // addIgnoredPattern(comments.toString());
         addIgnoredPattern(whitespace.toString());
         
-      
-        //Token token = new Token(this.nextToken(sb).type, sb.toString(), si);
-       
-        
-//        for(int i = 0; i < keywords.length; i++)
-//        {
-//        	keysHash.add(keywords[i]);
-//        }
-        
-        while((str = input.readLine()) != null)
+        while((str = input.readLine()) != null) // Read each line of the input file one at a time
         {
         	 SourceInfo si = new SourceInfo(filename);
         	 si.lineNumber = lineNumber;
@@ -100,16 +85,14 @@ class MyDecafLexer extends DecafLexer
         	 {
         		 if(token.text.equals("//")) //if a token is // you know its a comment so delete the entire line therefore ignoring the comment
         		 {
-        			// System.out.println("Comment");
         			 sb.delete(0, sb.length());
         			 continue;
         		 }
         		 token.source = si;
-        		 
-        		
+      
         		if(token.type == Type.ID) // Checks if an ID is a keyword or reserved word
         		{
-        			for(int i = 0; i < keywords.length; i ++)
+        			for(int i = 0; i < keywords.length; i ++) // Loop over all key words, if found change the type of the token to keyword
            		 	{
         				if(keywords[i].equals(token.text))
         				{
@@ -117,42 +100,26 @@ class MyDecafLexer extends DecafLexer
         				}
            		 	}
         			
-        			for(int i = 0; i < reserved.length; i ++)
+        			for(int i = 0; i < reserved.length; i ++) // Loop over all reserved words to see if it is used in program
         			{
-        				if(reserved[i].equals(token.text))
+        				if(reserved[i].equals(token.text)) // if so, throw exception
         				{
         					throw new InvalidTokenException("Use of a reserved word as an ID");
         				}
         			}
         		}
         		
-        		tokens.add(new Token(token.type, token.text, token.source));
+        		tokens.add(new Token(token.type, token.text, token.source)); // Add the token to the queue
         		
         		extract(whitespace, sb);
         	 }
-        	 if(token == null && sb.length() != 0)
+        	 if(token == null && sb.length() != 0) // if the token is null and we are not at the end of the line
         	 {
-        		//System.out.println("Hello" + lineNumber);
         		 throw new InvalidTokenException("Invalid token");
         	 }
         	 
         	 lineNumber++;        	
         }
-        //System.out.println("End Loop");
-       
-        Iterator<Token> iterator = tokens.iterator();
-        while(iterator.hasNext())
-        {
-        	token = iterator.next();
-        	//System.out.println("Iterator -->" + token);
-        	if(token == null)
-        	{
-        		tokens.remove(token); // I dont think i do this
-        		throw new InvalidTokenException("Invalid token");
-        	}
-        	System.out.println();
-        }
-       System.out.println("Tokens -->" + tokens.size());
         return tokens;
     }
     
